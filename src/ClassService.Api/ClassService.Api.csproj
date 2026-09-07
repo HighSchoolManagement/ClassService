@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassService.Application\ClassService.Application.csproj" />
-    <ProjectReference Include="..\ClassService.Infrastructure\ClassService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
