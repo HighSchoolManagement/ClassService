@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src\ClassService.Api\ClassService.Api.csproj" Type="Classic C#" />
-    <Project Path="src\ClassService.Application\ClassService.Application.csproj" Type="Classic C#" />
-    <Project Path="src\ClassService.Domain\ClassService.Domain.csproj" Type="Classic C#" />
-    <Project Path="src\ClassService.Infrastructure\ClassService.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="src/ClassService.Api/ClassService.Api.csproj" />
+    <Project Path="src/ClassService.Application/ClassService.Application.csproj" />
+    <Project Path="src/ClassService.Domain/ClassService.Domain.csproj" />
+    <Project Path="src/ClassService.Infrastructure/ClassService.Infrastructure.csproj" />
   </Folder>
 </Solution>

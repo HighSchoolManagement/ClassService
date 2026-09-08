@@ -18,6 +18,6 @@ public class ClassDbContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new ClassConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ClassDbContext).Assembly);
     }
 }
