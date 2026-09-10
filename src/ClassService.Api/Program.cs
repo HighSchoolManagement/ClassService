@@ -1,9 +1,13 @@
+using ClassService.Application.Interfaces;
 using ClassService.Infrastructure.Persistence;
+using ClassService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+
 builder.Services.AddDbContext<ClassDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClassServiceDbConnectionString")));
 builder.Services.AddControllers();

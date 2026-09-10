@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using ClassService.Application.Common.Mediator;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace ClassService.Application.Mediator
+namespace ClassService.Application.Common.Mediator
 {
     public class Mediator : IMediator
     {
@@ -13,11 +14,12 @@ namespace ClassService.Application.Mediator
         {
             _serviceProvider = serviceProvider;
         }
-        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+        public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             var requestType = request.GetType();
             var handlerType = typeof(IRequestHandler<,>).MakeGenericType(requestType, typeof(TResponse));
-            return null;
+            dynamic handler = _serviceProvider.GetRequiredService(handlerType);
+            return await handler.Handle((dynamic)request, cancellationToken);
         }
     }
 }
