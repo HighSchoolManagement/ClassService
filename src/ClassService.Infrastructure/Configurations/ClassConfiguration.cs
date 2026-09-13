@@ -10,7 +10,7 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
     {
         builder.ToTable("Class");
         builder.HasKey(c => c.Id);
-        
+
         builder.Property(c => c.Name)
             .HasMaxLength(100)
             .IsRequired();
@@ -29,5 +29,10 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
 
         builder.Property(c => c.ModifiedDate)
             .HasColumnType("datetime2");
+
+        // Tên lớp chỉ cần duy nhất TRONG PHẠM VI một năm học (SchoolYearId),
+        // không unique toàn cục — hai năm học khác nhau vẫn có thể cùng tên "10A1".
+        builder.HasIndex(c => new { c.SchoolYearId, c.Name })
+            .IsUnique();
     }
 }

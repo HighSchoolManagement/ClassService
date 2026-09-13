@@ -1,4 +1,5 @@
 using ClassService.Application.Interfaces;
+using ClassService.Infrastructure.Mapping;
 using ClassService.Infrastructure.Persistence;
 using ClassService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
+
+// ISchoolRepository gọi sang SchoolService qua HTTP, nên đăng ký bằng AddHttpClient
+// (thay vì AddScoped) để dùng IHttpClientFactory, tránh socket exhaustion.
+builder.Services.AddHttpClient<ISchoolRepository, SchoolHttpRepository>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:SchoolService:BaseUrl"]!);
+});
+
+// AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
+builder.Services.AddAutoMapper(typeof(SchoolYearMappingProfile));
 
 builder.Services.AddDbContext<ClassDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClassServiceDbConnectionString")));
