@@ -18,8 +18,8 @@ builder.Services.AddHttpClient<ISchoolRepository, SchoolHttpRepository>(client =
 });
 
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
-builder.Services.AddAutoMapper(typeof(SchoolYearMappingProfile));
-
+builder.Services.AddAutoMapper(cfg => { },
+    typeof(SchoolYearMappingProfile).Assembly);
 builder.Services.AddDbContext<ClassDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClassServiceDbConnectionString")));
 builder.Services.AddControllers();
