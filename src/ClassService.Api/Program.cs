@@ -1,3 +1,6 @@
+using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.GetClasses;
+using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
 using ClassService.Infrastructure.Mapping;
 using ClassService.Infrastructure.Persistence;
@@ -9,7 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
-
+builder.Services.AddScoped<IRequestHandler<CreateClassCommand, CreateClassResponse>, CreateClassHandle>();
+builder.Services.AddScoped<IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>, GetClassesHandle>();
 // ISchoolRepository gọi sang SchoolService qua HTTP, nên đăng ký bằng AddHttpClient
 // (thay vì AddScoped) để dùng IHttpClientFactory, tránh socket exhaustion.
 builder.Services.AddHttpClient<ISchoolRepository, SchoolHttpRepository>(client =>

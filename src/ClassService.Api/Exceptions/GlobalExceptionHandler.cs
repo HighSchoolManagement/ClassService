@@ -1,9 +1,7 @@
 ﻿using ClassService.Application.SchoolYears.GetSchoolYearById;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SchoolService.Application.Schools.CreateSchool;
-using SchoolService.Application.Schools.DeleteSchool;
-using SchoolService.Application.Schools.GetSchoolById;
+
 
 namespace SchoolService.Api.Exceptions
 {

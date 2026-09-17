@@ -1,4 +1,5 @@
 ﻿using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.GetClasses;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.SchoolYears.CreateSchoolYear;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,12 @@ namespace ClassService.Api.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        public async Task<IActionResult>GetPage(int pageNumber, int pageSize)
+        {
+            var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize });
+            return null;
+        }
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateClassRequest request)
         {

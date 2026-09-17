@@ -10,6 +10,7 @@ using ClassService.Infrastructure.Common;
 using ClassService.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper.QueryableExtensions;
 
 namespace ClassService.Infrastructure.Repositories
 {
@@ -42,6 +43,33 @@ namespace ClassService.Infrastructure.Repositories
                 throw;
             }
             return _mapper.Map<ClassReadModel>(classEntity);
+        }
+
+        public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize)
+        {
+            
+            var query = _context.Classes.AsQueryable();
+            if (asOfId.HasValue)
+            {
+                query = query.Where(c =>  c.Id <= asOfId && c.SchoolYearId == schoolYearId).AsQueryable();
+            }else
+            {
+                query = query.Where(c => c.SchoolYearId == schoolYearId).AsQueryable();
+            }
+            var totalCount = await query.CountAsync();
+
+            var classEntities = await query
+                .OrderByDescending(c => c.CreatedDate).ThenByDescending(c => c.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ProjectTo<ClassReadModel>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+            return (classEntities, totalCount);
+        }
+
+        public async Task<int?> GetMaxClassIdAsync(int schoolYearId)
+        {
+            return await _context.Classes.Where(c => c.SchoolYearId == schoolYearId).Select(c => (int?)c.Id).MaxAsync();
         }
     }
 }

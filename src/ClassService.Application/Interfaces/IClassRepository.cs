@@ -7,6 +7,8 @@ namespace ClassService.Application.Interfaces
 {
     public interface IClassRepository
     {
+        Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId, int pageNumber, int pageSize);
+        Task<int?> GetMaxClassIdAsync(int schoolYear);
         Task<ClassReadModel> AddAsync(ClassCreateModel model);
     }
 }
