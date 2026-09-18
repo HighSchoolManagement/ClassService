@@ -45,6 +45,15 @@ namespace ClassService.Infrastructure.Repositories
             return _mapper.Map<ClassReadModel>(classEntity);
         }
 
+        public async Task<ClassReadModel?> GetByIdAsync(int schoolYearId, int classId)
+        {
+            var classEntity = await _context.Classes
+                .Where(c => c.SchoolYearId == schoolYearId && c.Id == classId)
+                .ProjectTo<ClassReadModel>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+            return classEntity;
+        }
+
         public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize)
         {
             

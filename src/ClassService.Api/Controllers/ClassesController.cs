@@ -1,6 +1,8 @@
 ﻿using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
 using ClassService.Application.Common.Mediator;
+using ClassService.Application.Schools.GetSchoolById;
 using ClassService.Application.SchoolYears.CreateSchoolYear;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +24,30 @@ namespace ClassService.Api.Controllers
             var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize });
             return null;
         }
+
+
+        [HttpGet("{schoolYearId:int}/classes/{classId:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int schoolYearId, [FromRoute] int classId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetClassByIdQuery
+                {
+                    SchoolYearId = schoolYearId,
+                    ClassId = classId
+                });
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = ex.Message });
+            }
+            catch (ClassNotFoundException ex)
+            {
+                return NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateClassRequest request)
         {
