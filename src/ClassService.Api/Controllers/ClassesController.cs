@@ -17,7 +17,7 @@ namespace ClassService.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult>GetPage(int pageNumber, int pageSize)
+        public async Task<IActionResult>GetPage(int? asOf, int pageNumber, int pageSize)
         {
             var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize });
             return null;
