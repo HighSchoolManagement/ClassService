@@ -6,6 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClassService.Application.Common.Mediator
 {
+    public struct Unit
+    {
+        public static readonly Unit Value = new Unit();
+    }
     public class Mediator : IMediator
     {
         private readonly IServiceProvider _serviceProvider;

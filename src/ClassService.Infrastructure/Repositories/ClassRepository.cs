@@ -1,16 +1,17 @@
-using ClassService.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using ClassService.Application;
 using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Interfaces;
 using ClassService.Application.Models;
 using ClassService.Domain.Entities;
 using ClassService.Infrastructure.Common;
 using ClassService.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper.QueryableExtensions;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace ClassService.Infrastructure.Repositories
 {
@@ -54,6 +55,14 @@ namespace ClassService.Infrastructure.Repositories
             return classEntity;
         }
 
+        public async Task<Class?> GetByIdTrackedAsync(int schoolYearId, int classId)
+        {
+            return await _context.Classes
+               .Where(c => c.SchoolYearId == schoolYearId && c.Id == classId)
+               .FirstOrDefaultAsync();
+  
+        }
+
         public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize)
         {
             
@@ -79,6 +88,11 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<int?> GetMaxClassIdAsync(int schoolYearId)
         {
             return await _context.Classes.Where(c => c.SchoolYearId == schoolYearId).Select(c => (int?)c.Id).MaxAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
