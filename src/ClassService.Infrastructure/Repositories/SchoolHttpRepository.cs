@@ -14,7 +14,7 @@ namespace ClassService.Infrastructure.Repositories
         {
             _schoolsApi = schoolsApi;
         }
-
+        // Some api from school service may private for authorize or need a key to bypass, how do you handle it
         public async Task<SchoolReadModel?> GetSchoolReadModelByIdAsync(int id)
         {
             var response = await _schoolsApi.GetSchoolByIdAsync(id);
