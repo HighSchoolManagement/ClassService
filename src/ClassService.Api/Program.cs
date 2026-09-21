@@ -6,6 +6,7 @@ using ClassService.Infrastructure.Mapping;
 using ClassService.Infrastructure.Persistence;
 using ClassService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ClassService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,7 @@ builder.Services.AddHttpClient<ISchoolRepository, SchoolHttpRepository>(client =
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:SchoolService:BaseUrl"]!);
 });
-
+builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },
     typeof(SchoolYearMappingProfile).Assembly);

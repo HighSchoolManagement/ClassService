@@ -23,6 +23,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Refit.HttpClientFactory" Version="16.1.0" />
+    <PackageReference Include="SchoolService.Contracts" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
