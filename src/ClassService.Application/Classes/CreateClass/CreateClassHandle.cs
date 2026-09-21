@@ -50,7 +50,7 @@ namespace ClassService.Application.Classes.CreateClass
                 SchoolYearId = createdClass.SchoolYearId,
                 Name = createdClass.Name,
                 Capacity = createdClass.Capacity,
-                CreatedDate = createdClass.CreatedDate
+                CreatedDate = createdClass.CreatedDate ?? System.DateTime.Now
             };
         }
     }
