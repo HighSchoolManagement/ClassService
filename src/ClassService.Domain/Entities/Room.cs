@@ -9,4 +9,6 @@ public class Room
     public bool IsActive { get; set; }
     public DateTime? CreatedDate {get;set;}
     public DateTime? ModifiedDate {get;set;}
+    public ICollection<ClassRoomSchedule> ClassRoomSchedules { get; set; } = new List<ClassRoomSchedule>();
+
 }
