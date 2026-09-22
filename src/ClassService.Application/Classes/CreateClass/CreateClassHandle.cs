@@ -1,11 +1,12 @@
+using AutoMapper;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
+using ClassService.Application.Models;
+using ClassService.Application.Schools.GetSchoolById;
+using ClassService.Application.SchoolYears.GetSchoolYearById;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ClassService.Application.SchoolYears.GetSchoolYearById;
-using ClassService.Application.Schools.GetSchoolById;
-using ClassService.Application.Models;
 
 namespace ClassService.Application.Classes.CreateClass
 {
@@ -14,37 +15,31 @@ namespace ClassService.Application.Classes.CreateClass
         private readonly IClassRepository classRepository;
         private readonly ISchoolYearRepository schoolYearRepository;
         private readonly ISchoolRepository schoolRepository;
-        public CreateClassHandle (IClassRepository classRepository, ISchoolYearRepository schoolYearRepository, ISchoolRepository schoolRepository)
+        private readonly IMapper _mapper;
+        public CreateClassHandle (IClassRepository classRepository, ISchoolYearRepository schoolYearRepository, ISchoolRepository schoolRepository, IMapper mapper)
         {
             this.classRepository = classRepository;
             this.schoolYearRepository = schoolYearRepository;
             this.schoolRepository = schoolRepository;
+            _mapper = mapper;
         }
         public async Task<CreateClassResponse> Handle(CreateClassCommand request, CancellationToken cancellationToken = default)
         {
             var existingSchoolYear =
                 await schoolYearRepository.GetSchoolYearReadModelByIdAsync(request.CreateClassRequest.SchoolYearId);
-            if (existingSchoolYear == null)
+            if (existingSchoolYear != null)
             {
                 throw new SchoolYearNotFoundException();
             }
 
             var existingSchool =
                 await schoolRepository.GetSchoolReadModelByIdAsync(request.CreateClassRequest.SchoolId);
-            if (existingSchool == null)
+            if (existingSchool != null)
             {
                 throw new SchoolNotFoundException();
             }
 
-            var classCreateModel = new ClassCreateModel
-            {
-                SchoolId = request.CreateClassRequest.SchoolId,
-                SchoolYearId = request.CreateClassRequest.SchoolYearId,
-                Name = request.CreateClassRequest.Name,
-                Capacity = request.CreateClassRequest.Capacity,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
-            };
+            var classCreateModel = _mapper.Map<ClassCreateModel>(request.CreateClassRequest);
 
             var createdClass = await classRepository.AddAsync(classCreateModel);
 
@@ -55,7 +50,7 @@ namespace ClassService.Application.Classes.CreateClass
                 SchoolYearId = createdClass.SchoolYearId,
                 Name = createdClass.Name,
                 Capacity = createdClass.Capacity,
-                CreatedDate = createdClass.CreatedDate
+                CreatedDate = createdClass.CreatedDate ?? System.DateTime.Now
             };
         }
     }

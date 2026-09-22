@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
+using ClassService.Application.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

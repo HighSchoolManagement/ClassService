@@ -1,36 +1,39 @@
 using ClassService.Application.Interfaces;
 using ClassService.Application.Models;
-using System;
+using Refit;
+using SchoolService.Contracts.Schools;
 using System.Net;
-using System.Net.Http.Json;
 
 namespace ClassService.Infrastructure.Repositories
 {
-    // Không dùng ClassDbContext vì ClassService không sở hữu bảng School.
-    // Implementation này gọi HTTP sang SchoolService để lấy dữ liệu.
     public class SchoolHttpRepository : ISchoolRepository
     {
-        private readonly HttpClient _httpClient;
+        private readonly ISchoolsApi _schoolsApi;
 
-        public SchoolHttpRepository(HttpClient httpClient)
+        public SchoolHttpRepository(ISchoolsApi schoolsApi)
         {
-            _httpClient = httpClient;
+            _schoolsApi = schoolsApi;
         }
-
+        // Some api from school service may private for authorize or need a key to bypass, how do you handle it
         public async Task<SchoolReadModel?> GetSchoolReadModelByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"api/schools/{id}");
+            var response = await _schoolsApi.GetSchoolByIdAsync(id);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
+            // ApiResponse<T> không tự throw khi lỗi. Nếu SchoolService trả lỗi khác 404
+            // (500, timeout...) thì throw ApiException để không bị nhầm với "School không tồn tại".
+            await response.EnsureSuccessfulAsync();
 
-            // Nếu SchoolService trả lỗi khác 404 (500, timeout...) thì throw ra ngoài
-            // để không bị nhầm lẫn với trường hợp "School không tồn tại".
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<SchoolReadModel>();
+            var school = response.Content!;
+            return new SchoolReadModel
+            {
+                Id = school.Id,
+                Name = school.Name,
+                IsActive = school.IsActive
+            };
         }
     }
 }

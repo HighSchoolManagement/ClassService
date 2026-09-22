@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ClassService.Application.Classes.GetClasses
+namespace ClassService.Application.Models
 {
     public class PageResult<T>
     {

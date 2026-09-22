@@ -6,6 +6,9 @@ using ClassService.Infrastructure.Mapping;
 using ClassService.Infrastructure.Persistence;
 using ClassService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ClassService.Infrastructure;
+using ClassService.Application.Models;
+using ClassService.Application.Rooms.GetRooms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,13 +17,10 @@ builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
 builder.Services.AddScoped<IRequestHandler<CreateClassCommand, CreateClassResponse>, CreateClassHandle>();
 builder.Services.AddScoped<IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>, GetClassesHandle>();
-// ISchoolRepository gọi sang SchoolService qua HTTP, nên đăng ký bằng AddHttpClient
-// (thay vì AddScoped) để dùng IHttpClientFactory, tránh socket exhaustion.
-builder.Services.AddHttpClient<ISchoolRepository, SchoolHttpRepository>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["Services:SchoolService:BaseUrl"]!);
-});
-
+builder.Services.AddScoped<IRequestHandler<GetRoomsQuery, PageResult<GetRoomsResponse>>, GetRoomsHandle>();
+// ISchoolRepository dung Refit client (ISchoolsApi) de goi SchoolService, dang ky trong AddSchoolServiceClient.
+builder.Services.AddScoped<ISchoolRepository, SchoolHttpRepository>();
+builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },
     typeof(SchoolYearMappingProfile).Assembly);

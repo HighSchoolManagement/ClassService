@@ -14,6 +14,7 @@ namespace ClassService.Application.Classes
         {
             CreateMap<ClassReadModel, GetClassByIdResponse>();
             CreateMap<ClassReadModel, CreateClassResponse>();
+            CreateMap<CreateClassRequest, ClassCreateModel>();
         }
     }
 }
