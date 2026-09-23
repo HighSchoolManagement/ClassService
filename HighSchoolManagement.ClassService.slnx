@@ -1,8 +1,12 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/ClassService.Api/ClassService.Api.csproj" />
     <Project Path="src/ClassService.Application/ClassService.Application.csproj" />
     <Project Path="src/ClassService.Domain/ClassService.Domain.csproj" />
     <Project Path="src/ClassService.Infrastructure/ClassService.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Éléments de solution/" />
 </Solution>
