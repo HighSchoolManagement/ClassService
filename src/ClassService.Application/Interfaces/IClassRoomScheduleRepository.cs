@@ -7,6 +7,6 @@ namespace ClassService.Application.Interfaces
 {
     public interface IClassRoomScheduleRepository
     {
-        Task<List<ClassRoomScheduleReadModel>> GetClassRoomSchedule(int schoolId);
+        // Task<List<ClassRoomScheduleReadModel>> GetClassRoomSchedule(int schoolId,int roomId, DateTime from, DateTime? to, CancellationToken token);
     }
 }

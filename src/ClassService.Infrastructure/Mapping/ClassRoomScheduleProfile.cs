@@ -11,7 +11,7 @@ namespace ClassService.Infrastructure.Mapping
     {
         public ClassRoomScheduleProfile()
         {
-            CreateMap<ClassRoomScheduleReadModel, ClassRoomSchedule>();
+            CreateMap<ClassRoomScheduleReadModel, RoomSchedule>();
         }
     }
 }

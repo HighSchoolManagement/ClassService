@@ -28,4 +28,12 @@ public class RoomRepository:IRoomRepository
             .ToListAsync();
         return (response, totalCount);
     }
+
+    public async Task<RoomReadModel?> GetRoomBySchoolId(int schoolId, int roomId)
+    {
+        return await _context.Rooms
+            .Where(r => r.SchoolId == schoolId && r.Id == roomId && r.IsActive)
+            .ProjectTo<RoomReadModel>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+    }
 }

@@ -10,6 +10,6 @@ namespace ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule
         public int SchoolId { get; set; }
         public int RoomId { get; set; }
         public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public DateTime? To { get; set; }
     }
 }

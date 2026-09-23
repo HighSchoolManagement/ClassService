@@ -15,7 +15,7 @@ public class ClassDbContext: DbContext
     public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<ClassTeacherAssignment> ClassTeacherAssignments { get; set; }
     public DbSet<Room> Rooms { get; set; }
-    public DbSet<ClassRoomSchedule>  ClassRoomSchedules { get; set; }
+    public DbSet<RoomSchedule>  ClassRoomSchedules { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
