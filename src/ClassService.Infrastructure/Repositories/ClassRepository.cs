@@ -49,6 +49,7 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<ClassReadModel?> GetByIdAsync(int schoolYearId, int classId)
         {
             var classEntity = await _context.Classes
+                .AsNoTracking()
                 .Where(c => c.SchoolYearId == schoolYearId && c.Id == classId)
                 .ProjectTo<ClassReadModel>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
@@ -58,6 +59,7 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<Class?> GetByIdTrackedAsync(int schoolYearId, int classId)
         {
             return await _context.Classes
+               .AsNoTracking()
                .Where(c => c.SchoolYearId == schoolYearId && c.Id == classId)
                .FirstOrDefaultAsync();
   
@@ -66,7 +68,7 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize)
         {
             
-            var query = _context.Classes.AsQueryable();
+            var query = _context.Classes.AsNoTracking().AsQueryable();
             if (asOfId.HasValue)
             {
                 query = query.Where(c =>  c.Id <= asOfId && c.SchoolYearId == schoolYearId).AsQueryable();

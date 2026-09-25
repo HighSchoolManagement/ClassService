@@ -8,5 +8,6 @@ namespace ClassService.Application.Interfaces
     public interface ISchoolRepository
     {
         Task<SchoolReadModel?> GetSchoolReadModelByIdAsync(int id);
+
     }
 }

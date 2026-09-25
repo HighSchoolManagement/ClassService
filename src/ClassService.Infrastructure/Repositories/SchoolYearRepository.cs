@@ -28,7 +28,7 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByIdAsync(int id)
         {
 
-            var schoolYear =await _context.SchoolYears.Where(sy => sy.Id == id && sy.IsActive)
+            var schoolYear =await _context.SchoolYears.AsNoTracking().Where(sy => sy.Id == id && sy.IsActive)
                 .ProjectTo<SchoolYearReadModel>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
@@ -38,7 +38,7 @@ namespace ClassService.Infrastructure.Repositories
         public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByNameAsync(string name)
         {
             var schoolYearName = name.Trim();
-            var schoolYear = await _context.SchoolYears.Where(sy => sy.Name == schoolYearName && sy.IsActive)
+            var schoolYear = await _context.SchoolYears.AsNoTracking().Where(sy => sy.Name == schoolYearName && sy.IsActive)
                .ProjectTo<SchoolYearReadModel>(_mapper.ConfigurationProvider)
                .FirstOrDefaultAsync();
 
@@ -66,6 +66,14 @@ namespace ClassService.Infrastructure.Repositories
                 throw;
             }
             return _mapper.Map<SchoolYearReadModel>(shoolYearEntity);
+        }
+
+        public async Task<SchoolYearReadModel?> GetSchoolYearReadModelBySchoolIdAndDateAsync(int schoolId, DateOnly date, CancellationToken cancellationToken = default)
+        {
+            var schoolYear = await _context.SchoolYears.AsNoTracking().Where(sy => sy.SchoolId == schoolId && sy.StartDate <= date && date <= sy.EndDate && sy.IsActive)
+                         .ProjectTo<SchoolYearReadModel>(_mapper.ConfigurationProvider)
+                         .FirstOrDefaultAsync(cancellationToken);
+            return schoolYear;
         }
     }
 }
