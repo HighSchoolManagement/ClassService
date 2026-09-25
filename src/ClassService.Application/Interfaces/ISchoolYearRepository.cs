@@ -8,6 +8,7 @@ namespace ClassService.Application.Interfaces
     public interface ISchoolYearRepository
     {
         Task<SchoolYearReadModel?> GetSchoolYearReadModelByIdAsync(int id);
+        Task<SchoolYearReadModel?> GetSchoolYearReadModelBySchoolIdAndDateAsync(int schoolId, DateOnly date, CancellationToken cancellationToken = default);
         Task<SchoolYearReadModel?> GetSchoolYearReadModelByNameAsync(string name);
         Task<SchoolYearReadModel> AddAsync(SchoolYearCreateModel model);
     }

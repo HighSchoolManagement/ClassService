@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClassService.Application.Interfaces;
 using ClassService.Application.Models;
+using ClassService.Domain.Entities;
 using ClassService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,25 +10,41 @@ using System.Text;
 
 namespace ClassService.Infrastructure.Repositories
 {
-    public class RoomScheduleRepository : IClassRoomScheduleRepository
+    public class RoomScheduleRepository : IRoomScheduleRepository
     {
         private readonly ClassDbContext _context;
-        private readonly IMapper _mapper;
-        private readonly ISchoolRepository _schoolRepository;
-        public RoomScheduleRepository(ClassDbContext context, ISchoolRepository schoolRepository, IMapper mapper)
+
+        public RoomScheduleRepository(ClassDbContext context, ISchoolRepository schoolRepository)
         {
             _context = context;
-            _mapper = mapper;
         }
-        public async Task<List<ClassRoomScheduleReadModel>> GetClassRoomSchedule(int schoolId, int roomId, DateTime from, DateTime to, CancellationToken token)
+        public async Task<List<RoomScheduleReadModel>> GetRoomScheduleAsync(
+        int schoolId, int roomId, DateOnly from, DateOnly toExclusive, CancellationToken cancellationToken = default)
         {
-            
-            // var response =await _context
-            //     .ClassRoomSchedules
-            //     .Where(c => c.Room.SchoolId == schoolId &&  c.RoomId == roomId && c.StartTime == from && c.EndTime == to) 
-            //     .ToListAsync();
-            // return _mapper.Map<List<ClassRoomScheduleReadModel>>(response);
-            throw new Exception();
+            return await _context.RoomSchedules
+                .AsNoTracking()
+                .Where(s => s.RoomId == roomId
+                         && s.Room.SchoolId == schoolId          // room must belong to the school
+                         && s.Date >= from && s.Date < toExclusive
+                         && s.IsActive)
+                // add "&& s.IsActive" if RoomSchedule gets an IsActive flag (recommended: needed for the unique filtered index)
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Period.Number)
+                .Select(s => new RoomScheduleReadModel
+                {
+                    Id = s.Id,
+                    Date = s.Date,
+                    PeriodId = s.PeriodId,
+                    Type = s.Booking,
+                    Title = s.Title,
+                    ClassId = s.ClassId,
+                    ClassName = s.Class != null ? s.Class.Name : null,       // Meeting/Reserved have no class
+                    StudentCount = s.Class == null
+                        ? (int?)null
+                        // only enrollments valid ON THE DAY of the booking
+                        : s.Class.Enrollments.Count(e => e.StartDate <= s.Date && (e.EndDate == null || e.EndDate >= s.Date))
+                })
+                .ToListAsync(cancellationToken);
         }
     }
 }

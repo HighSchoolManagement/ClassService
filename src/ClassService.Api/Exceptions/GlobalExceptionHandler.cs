@@ -1,4 +1,5 @@
-﻿using ClassService.Application.SchoolYears.GetSchoolYearById;
+﻿using ClassService.Application.Rooms;
+using ClassService.Application.SchoolYears.GetSchoolYearById;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,7 @@ namespace SchoolService.Api.Exceptions
                 //DuplicateSchoolCodeException => (StatusCodes.Status409Conflict, exception.Message),
                 //SchoolAlreadyInactiveException => (StatusCodes.Status409Conflict, exception.Message),
                 SchoolYearNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
+                RoomNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
                 ArgumentOutOfRangeException => (StatusCodes.Status400BadRequest, exception.Message),
                 ArgumentException => (StatusCodes.Status400BadRequest, exception.Message),
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please try again later.")

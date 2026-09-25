@@ -9,8 +9,8 @@ namespace ClassService.Domain.Entities
         public int Id { get; set; }
         public int StudentId { get; set; }
         public int ClassId { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public Class Class { get; set; } = new Class();

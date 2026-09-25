@@ -5,11 +5,11 @@ using System.Text;
 
 namespace ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule
 {
-    public class GetClassRoomScheduleQuery: IRequest<List<GetClassRoomScheduleResponse>>
+    public class GetRoomScheduleQuery: IRequest<GetRoomScheduleResponse>
     {
         public int SchoolId { get; set; }
         public int RoomId { get; set; }
-        public DateTime From { get; set; }
-        public DateTime? To { get; set; }
+        public DateOnly From { get; set; }
+        public DateOnly? To { get; set; }
     }
 }

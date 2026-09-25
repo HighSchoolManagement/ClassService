@@ -29,11 +29,12 @@ public class RoomRepository:IRoomRepository
         return (response, totalCount);
     }
 
-    public async Task<RoomReadModel?> GetRoomBySchoolId(int schoolId, int roomId)
+    public async Task<RoomReadModel?> GetRoomBySchoolIdAsync(int schoolId, int roomId, CancellationToken cancellationToken)
     {
         return await _context.Rooms
+            .AsNoTracking()
             .Where(r => r.SchoolId == schoolId && r.Id == roomId && r.IsActive)
             .ProjectTo<RoomReadModel>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

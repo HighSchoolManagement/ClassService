@@ -7,11 +7,11 @@ using System.Text;
 
 namespace ClassService.Infrastructure.Mapping
 {
-    public class ClassRoomScheduleProfile: Profile
+    public class PeriodProfile : Profile
     {
-        public ClassRoomScheduleProfile()
+        public PeriodProfile()
         {
-            CreateMap<RoomScheduleReadModel, RoomSchedule>();
+            CreateMap<Period, PeriodReadModel>();
         }
     }
 }
