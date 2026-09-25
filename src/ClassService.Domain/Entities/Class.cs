@@ -15,7 +15,8 @@ namespace ClassService.Domain.Entities
         public DateTime? ModifiedDate {get;set;}
         public SchoolYear SchoolYear { get; set; } = new SchoolYear();
         public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-        public ICollection<ClassRoomSchedule> ClassRoomSchedules { get; set; } = new List<ClassRoomSchedule>();
+        public ICollection<RoomSchedule> RoomSchedules { get; set; } = new List<RoomSchedule>();
+        public ICollection<ClassSubject> ClassSubjects { get; set; } = new List<ClassSubject>();
 
     }
 }

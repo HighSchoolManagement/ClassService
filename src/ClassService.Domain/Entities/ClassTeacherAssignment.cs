@@ -13,5 +13,6 @@ namespace ClassService.Domain.Entities
         public DateTime EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public ICollection<Class> Classes { get; set; } = new List<Class>();
     }
 }
