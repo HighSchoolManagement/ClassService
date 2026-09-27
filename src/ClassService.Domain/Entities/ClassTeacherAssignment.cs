@@ -8,6 +8,7 @@ namespace ClassService.Domain.Entities
     {
         public int Id { get; set; }
         public int TeacherId { get; set; }
+        public int ClassId { get; set; }
         public bool IsHomeRoomTeacher { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

@@ -1,4 +1,5 @@
 using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
 using ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule;
 using ClassService.Application.Common.Mediator;
@@ -25,6 +26,8 @@ builder.Services.AddScoped<IRequestHandler<CreateClassCommand, CreateClassRespon
 builder.Services.AddScoped<IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>, GetClassesHandle>();
 builder.Services.AddScoped<IRequestHandler<GetRoomsQuery, PageResult<GetRoomsResponse>>, GetRoomsHandle>();
 builder.Services.AddScoped<IRequestHandler<GetRoomScheduleQuery, GetRoomScheduleResponse>, GetRoomScheduleHandle>();
+builder.Services.AddScoped<IRequestHandler<GetClassByIdQuery, GetClassByIdResponse>, GetClassByIdHandle>();
+
 builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },

@@ -6,6 +6,8 @@ public class RoomSchedule
     public int? ClassId { get; set; }
     public int RoomId { get; set; }
     public int PeriodId { get; set; }
+    public int? SubjectId { get; set; }
+    public string? Topic { get; set; } 
     public BookingType Booking { get; set; }
     public DateOnly Date { get; set; }
     public DateTime CreatedDate {get;set;}

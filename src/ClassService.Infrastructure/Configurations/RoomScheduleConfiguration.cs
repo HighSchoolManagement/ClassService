@@ -15,9 +15,14 @@ namespace ClassService.Infrastructure.Configurations
             builder.HasKey(e => e.Id);
             builder.Property(x => x.Booking).HasConversion<string>().HasMaxLength(20);
             builder.Property(x => x.Title).HasMaxLength(200);
+            builder.Property(x => x.Topic).HasMaxLength(200);
             builder.HasOne(x => x.Room).WithMany(r => r.RoomSchedules).HasForeignKey(x => x.RoomId);
             builder.HasOne(x => x.Period).WithMany(p => p.RoomSchedules).HasForeignKey(x => x.PeriodId);
             builder.HasOne(x => x.Class).WithMany(c => c.RoomSchedules).HasForeignKey(x => x.ClassId);
+            // FK tới Subject — không có navigation property ở 2 phía, chỉ ràng buộc khoá ngoại.
+            // Lưu ý: SubjectId hiện vẫn là int bắt buộc (chưa đổi thành int?) — xem lại điểm
+            // "Meeting/Reserved booking không có Subject" đã nêu ở review trước, chưa xử lý ở đây.
+            builder.HasOne<Subject>().WithMany().HasForeignKey(x => x.SubjectId);
 
             // Phòng không bị chiếm đôi (SQL Server: cột IsActive kiểu bit, so sánh bằng 1/0)
             builder.HasIndex(x => new { x.RoomId, x.Date, x.PeriodId })
@@ -28,7 +33,7 @@ namespace ClassService.Infrastructure.Configurations
             builder.HasIndex(x => new { x.ClassId, x.Date, x.PeriodId })
                 .IsUnique()
                 .HasFilter("[IsActive] = 1 AND [ClassId] IS NOT NULL");
-            
+
             builder.ToTable(t => t.HasCheckConstraint("CK_RoomSchedule_Class",
                 "([Booking] = 'Class' AND [ClassId] IS NOT NULL) OR ([Booking] <> 'Class' AND [ClassId] IS NULL)"));
 
