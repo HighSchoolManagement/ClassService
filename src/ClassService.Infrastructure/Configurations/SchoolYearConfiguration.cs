@@ -27,10 +27,10 @@ namespace ClassService.Infrastructure.Configurations
                 .IsRequired();
 
             builder.Property(s => s.StartDate)
-       .HasColumnType("datetime2");
+       .HasColumnType("date");
 
             builder.Property(s => s.EndDate)
-                .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(s => s.CreatedDate)
            .HasColumnType("datetime2");
