@@ -1,5 +1,6 @@
 using ClassService.Application.Classes.CreateClass;
 using ClassService.Application.Classes.GetClasses;
+using ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
 using ClassService.Infrastructure.Mapping;
@@ -15,11 +16,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
+builder.Services.AddScoped<ISchoolRepository, SchoolHttpRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
+builder.Services.AddScoped<IRoomScheduleRepository, RoomScheduleRepository>();
+
 builder.Services.AddScoped<IRequestHandler<CreateClassCommand, CreateClassResponse>, CreateClassHandle>();
 builder.Services.AddScoped<IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>, GetClassesHandle>();
 builder.Services.AddScoped<IRequestHandler<GetRoomsQuery, PageResult<GetRoomsResponse>>, GetRoomsHandle>();
-// ISchoolRepository dung Refit client (ISchoolsApi) de goi SchoolService, dang ky trong AddSchoolServiceClient.
-builder.Services.AddScoped<ISchoolRepository, SchoolHttpRepository>();
+builder.Services.AddScoped<IRequestHandler<GetRoomScheduleQuery, GetRoomScheduleResponse>, GetRoomScheduleHandle>();
 builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },

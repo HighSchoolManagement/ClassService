@@ -1,4 +1,4 @@
-﻿using ClassService.Domain.Entities;
+using ClassService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +9,7 @@ namespace ClassService.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Enrollment> builder)
         {
-            builder.ToTable("Enrollment", e => e.HasCheckConstraint("CK_SchoolYear_DateRange", "[EndDate] > [StartDate]"));
+            builder.ToTable("Enrollment", e => e.HasCheckConstraint("CK_Enrollment_DateRange", "[EndDate] > [StartDate]"));
             builder.HasKey(e => e.Id);
 
             builder.Property(e => e.StudentId)
@@ -22,10 +22,10 @@ namespace ClassService.Infrastructure.Configurations
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(e => e.StartDate)
-         .HasColumnType("datetime2");
+         .HasColumnType("date");
 
             builder.Property(e => e.EndDate)
-                .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(e => e.CreatedDate)
            .HasColumnType("datetime2");

@@ -36,8 +36,8 @@ namespace ClassService.Application.SchoolYears.CreateSchoolYear
             return new CreateSchoolYearResponse
             {
                 Name = createdSchoolYear.Name,
-                StartDate = createdSchoolYear.StartDate,
-                EndDate = createdSchoolYear.EndDate,
+                // StartDate = createdSchoolYear.StartDate,
+                // EndDate = createdSchoolYear.EndDate,
                 IsActive = createdSchoolYear.IsActive,
             };
         }
