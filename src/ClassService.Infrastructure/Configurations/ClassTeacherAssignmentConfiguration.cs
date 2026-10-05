@@ -1,4 +1,4 @@
-﻿using ClassService.Domain.Entities;
+using ClassService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -16,7 +16,15 @@ namespace ClassService.Infrastructure.Configurations
 
             builder.Property(c => c.TeacherId)
             .IsRequired();
+            // TeacherId là tham chiếu cross-service (giống Class.SchoolId) — cố tình KHÔNG
+            // có FK thật trong DB. Nếu Teacher là entity local trong ClassService thì cần
+            // sửa lại thành HasOne<Teacher>().WithMany().HasForeignKey(c => c.TeacherId) —
+            // vẫn là câu hỏi mở ở mục 4 doc Subject-Topic-decision.md, chưa có câu trả lời.
 
+            builder.Property(c => c.ClassId)
+                .IsRequired();
+
+            builder.HasOne<Class>().WithMany().HasForeignKey(c => c.ClassId);
 
             builder.Property(s => s.IsHomeRoomTeacher)
                .HasColumnType("BIT")
@@ -24,16 +32,22 @@ namespace ClassService.Infrastructure.Configurations
                .IsRequired();
 
             builder.Property(s => s.StartDate)
-       .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(s => s.EndDate)
-                .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(s => s.CreatedDate)
-           .HasColumnType("datetime2");
+                .HasColumnType("datetime2");
 
             builder.Property(s => s.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
+
+            // Mot lop chi co mot chu nhiem dang mo (EndDate NULL).
+            builder.HasIndex(c => c.ClassId)
+                .IsUnique()
+                .HasFilter("[IsHomeRoomTeacher] = 1 AND [EndDate] IS NULL");
         }
     }
 }

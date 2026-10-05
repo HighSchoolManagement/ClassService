@@ -1,4 +1,5 @@
 ﻿using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.DeleteClass;
 using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
 using ClassService.Application.Classes.UpdateClass;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClassService.Api.Controllers
 {
-    [Route("api/{schoolYearId:int}/[controller]")]
+    [Route("api/{schoolYearId:int}/{schoolId:int}/[controller]")]
     [ApiController]
     public class ClassesController : Controller
     {
@@ -83,6 +84,29 @@ namespace ClassService.Api.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = ex.Message });
+            }
+        }
+
+        [HttpDelete("{classId:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int classId, [FromRoute] int schoolYearId,
+            [FromRoute] int schoolId)
+        {
+            try
+            {
+                await _mediator.Send(new DeleteClassCommand
+                {
+                    SchoolYearId = schoolYearId, SchoolId = schoolId, ClassId = classId
+                });
+                return NoContent();
+            }
+            catch (ClassNotFoundException ex)
+            {
+                return NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest
+                    , Title = ex.Message });
             }
         }
     }

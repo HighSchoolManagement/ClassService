@@ -8,7 +8,7 @@ public class ClassDbContext: DbContext
 {
     public ClassDbContext(DbContextOptions<ClassDbContext> options) : base(options)
     {
-        
+
     }
     public DbSet<Class> Classes { get; set; }
     public DbSet<SchoolYear> SchoolYears { get; set; }
@@ -17,6 +17,9 @@ public class ClassDbContext: DbContext
     public DbSet<Room> Rooms { get; set; }
     public DbSet<RoomSchedule>  RoomSchedules { get; set; }
     public DbSet<Period> Periods { get; set; }
+    public DbSet<Subject> Subjects { get; set; }
+    public DbSet<ClassSubject> ClassSubjects { get; set; }
+    public DbSet<ClassSubjectTeacher> ClassSubjectTeachers { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -10,6 +10,8 @@ namespace ClassService.Application.Models
         public int Id { get; set; }
         public DateOnly Date { get; set; }
         public int PeriodId { get; set; }
+        public int SubjectId { get; set; }
+        public string? Topic { get; set; }
         public BookingType Type { get; set; }      
         public string? Title { get; set; }
         public int? ClassId { get; set; }

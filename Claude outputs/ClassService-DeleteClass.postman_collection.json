@@ -1,0 +1,369 @@
+{
+  "info": {
+    "name": "ClassService - Delete Class",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Chay request theo thu tu 1 -> 10 sau khi seed du lieu TEST. Dien id9A..id9E trong tab Variables."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "schoolId",
+      "value": "1"
+    },
+    {
+      "key": "schoolYearId",
+      "value": "0"
+    },
+    {
+      "key": "id9A",
+      "value": "0"
+    },
+    {
+      "key": "id9B",
+      "value": "0"
+    },
+    {
+      "key": "id9C",
+      "value": "0"
+    },
+    {
+      "key": "id9D",
+      "value": "0"
+    },
+    {
+      "key": "id9E",
+      "value": "0"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Delete 9A (lop trong) -> 204",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "Lop active, khong co gi gan vao.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9A}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9A}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Delete 9A lan hai -> 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "Handler chi tim lop IsActive = 1.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9A}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9A}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Delete 9C (da IsActive=0) -> 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9C}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9C}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Delete 9B (co lich qua khu + tuong lai) -> 204",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "Sau do chay SQL kiem tra: RoomSchedule cua 9B van IsActive = 1.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9B}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9B}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Delete 9D (co lich + enrollment + giao vien) -> 204",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "Quan sat Enrollment / ClassTeacherAssignment / ClassSubjectTeacher co bi dung toi khong.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9D}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9D}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Delete id khong ton tai -> 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/99999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "99999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Delete id = 0 -> 400",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "Handler nem ArgumentException khi id <= 0. Co the route constraint khien tra 404 thay vi 400, kiem tra thuc te.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/0",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "0"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Delete 9E voi schoolId sai -> 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "9E phai con nguyen (IsActive = 1).",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/999999/classes/{{id9E}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "999999",
+            "classes",
+            "{{id9E}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Delete 9E voi schoolYearId sai -> 404",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "description": "9E phai con nguyen (IsActive = 1).",
+        "url": {
+          "raw": "{{baseUrl}}/api/999999/{{schoolId}}/classes/{{id9E}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "999999",
+            "{{schoolId}}",
+            "classes",
+            "{{id9E}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 404\", () => pm.response.to.have.status(404));",
+              "pm.test(\"Tra ve ProblemDetails\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"title\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. GET 9B sau khi xoa (quan sat)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "GetByIdAsync khong loc IsActive nen hien tai se van tra 200. Doi expect neu ban doi hanh vi.",
+        "url": {
+          "raw": "{{baseUrl}}/api/{{schoolYearId}}/{{schoolId}}/classes/{{id9B}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "{{schoolYearId}}",
+            "{{schoolId}}",
+            "classes",
+            "{{id9B}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status la 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

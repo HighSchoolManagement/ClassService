@@ -1,4 +1,6 @@
 using ClassService.Application.Classes.CreateClass;
+using ClassService.Application.Classes.DeleteClass;
+using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
 using ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule;
 using ClassService.Application.Common.Mediator;
@@ -10,10 +12,14 @@ using Microsoft.EntityFrameworkCore;
 using ClassService.Infrastructure;
 using ClassService.Application.Models;
 using ClassService.Application.Rooms.GetRooms;
+using SchoolService.Api.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddProblemDetails();   // UseExceptionHandler() can no AddProblemDetails (hoac ExceptionHandlingPath)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
 builder.Services.AddScoped<ISchoolRepository, SchoolHttpRepository>();
@@ -25,6 +31,9 @@ builder.Services.AddScoped<IRequestHandler<CreateClassCommand, CreateClassRespon
 builder.Services.AddScoped<IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>, GetClassesHandle>();
 builder.Services.AddScoped<IRequestHandler<GetRoomsQuery, PageResult<GetRoomsResponse>>, GetRoomsHandle>();
 builder.Services.AddScoped<IRequestHandler<GetRoomScheduleQuery, GetRoomScheduleResponse>, GetRoomScheduleHandle>();
+builder.Services.AddScoped<IRequestHandler<GetClassByIdQuery, GetClassByIdResponse>, GetClassByIdHandle>();
+builder.Services.AddScoped<IRequestHandler<DeleteClassCommand, Unit>, DeleteClassHandle>();
+
 builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },
@@ -35,7 +44,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 var app = builder.Build();
-
+app.UseExceptionHandler();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

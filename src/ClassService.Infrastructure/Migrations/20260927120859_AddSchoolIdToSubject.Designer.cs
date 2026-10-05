@@ -4,6 +4,7 @@ using ClassService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClassService.Infrastructure.Migrations
 {
     [DbContext(typeof(ClassDbContext))]
-    partial class ClassDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260927120859_AddSchoolIdToSubject")]
+    partial class AddSchoolIdToSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,23 +39,13 @@ namespace ClassService.Infrastructure.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.Property<int>("SchoolId")
                         .HasColumnType("int");
@@ -63,13 +56,12 @@ namespace ClassService.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("SchoolYearId", "Name")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
+                        .IsUnique();
 
                     b.ToTable("Class", (string)null);
                 });
 
-            modelBuilder.Entity("ClassService.Domain.Entities.ClassSubject", b =>
+            modelBuilder.Entity("ClassService.Domain.Entities.ClassSubjectTeacher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,52 +79,19 @@ namespace ClassService.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("SubjectId")
                         .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubjectId");
-
-                    b.HasIndex("ClassId", "SubjectId")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
-
-                    b.ToTable("ClassSubject", (string)null);
-                });
-
-            modelBuilder.Entity("ClassService.Domain.Entities.ClassSubjectTeacher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClassSubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
 
                     b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassSubjectId")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("SubjectId");
 
                     b.ToTable("ClassSubjectTeacher", (string)null);
                 });
@@ -151,8 +110,8 @@ namespace ClassService.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly?>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsHomeRoomTeacher")
                         .ValueGeneratedOnAdd()
@@ -160,20 +119,17 @@ namespace ClassService.Infrastructure.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassId")
-                        .IsUnique()
-                        .HasFilter("[IsHomeRoomTeacher] = 1 AND [EndDate] IS NULL");
+                    b.HasIndex("ClassId");
 
                     b.ToTable("ClassTeacherAssignment", (string)null);
                 });
@@ -192,15 +148,11 @@ namespace ClassService.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly?>("EndDate")
+                    b.Property<DateOnly>("EndDate")
                         .HasColumnType("date");
 
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
-
-                    b.Property<int>("SchoolYearId")
-                        .HasColumnType("int");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
@@ -210,15 +162,11 @@ namespace ClassService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassId", "SchoolYearId");
-
-                    b.HasIndex("StudentId", "SchoolYearId")
-                        .IsUnique()
-                        .HasFilter("[EndDate] IS NULL");
+                    b.HasIndex("ClassId");
 
                     b.ToTable("Enrollment", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Enrollment_DateRange", "[EndDate] IS NULL OR [EndDate] > [StartDate]");
+                            t.HasCheckConstraint("CK_Enrollment_DateRange", "[EndDate] > [StartDate]");
                         });
                 });
 
@@ -252,10 +200,6 @@ namespace ClassService.Infrastructure.Migrations
 
                     b.HasIndex("SchoolYearId");
 
-                    b.HasIndex("SchoolId", "SchoolYearId", "Number")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
-
                     b.ToTable("Periods");
                 });
 
@@ -277,8 +221,7 @@ namespace ClassService.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -289,10 +232,6 @@ namespace ClassService.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SchoolId", "Name")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
 
                     b.ToTable("Room", (string)null);
                 });
@@ -305,10 +244,12 @@ namespace ClassService.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<byte>("BookingType")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("Booking")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("ClassSubjectId")
+                    b.Property<int?>("ClassId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -321,8 +262,7 @@ namespace ClassService.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PeriodId")
                         .HasColumnType("int");
@@ -330,11 +270,8 @@ namespace ClassService.Infrastructure.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                    b.Property<int?>("SubjectId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasMaxLength(200)
@@ -346,9 +283,13 @@ namespace ClassService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassSubjectId");
-
                     b.HasIndex("PeriodId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("ClassId", "Date", "PeriodId")
+                        .IsUnique()
+                        .HasFilter("[IsActive] = 1 AND [ClassId] IS NOT NULL");
 
                     b.HasIndex("RoomId", "Date", "PeriodId")
                         .IsUnique()
@@ -356,11 +297,7 @@ namespace ClassService.Infrastructure.Migrations
 
                     b.ToTable("RoomSchedule", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RoomSchedule_Lesson_ClassSubject", "[BookingType] <> 1 OR [ClassSubjectId] IS NOT NULL");
-
-                            t.HasCheckConstraint("CK_RoomSchedule_NonLesson_NoTopic", "[BookingType] = 1 OR [Topic] IS NULL");
-
-                            t.HasCheckConstraint("CK_RoomSchedule_NonLesson_Title", "[BookingType] = 1 OR [Title] IS NOT NULL");
+                            t.HasCheckConstraint("CK_RoomSchedule_Class", "([Booking] = 'Class' AND [ClassId] IS NOT NULL) OR ([Booking] <> 'Class' AND [ClassId] IS NULL)");
                         });
                 });
 
@@ -416,20 +353,11 @@ namespace ClassService.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Code")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
                     b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("UpdatedDate");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -440,10 +368,6 @@ namespace ClassService.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SchoolId", "Name")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
 
                     b.ToTable("Subject", (string)null);
                 });
@@ -459,34 +383,19 @@ namespace ClassService.Infrastructure.Migrations
                     b.Navigation("SchoolYear");
                 });
 
-            modelBuilder.Entity("ClassService.Domain.Entities.ClassSubject", b =>
-                {
-                    b.HasOne("ClassService.Domain.Entities.Class", "Class")
-                        .WithMany("ClassSubjects")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ClassService.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Subject");
-                });
-
             modelBuilder.Entity("ClassService.Domain.Entities.ClassSubjectTeacher", b =>
                 {
-                    b.HasOne("ClassService.Domain.Entities.ClassSubject", "ClassSubject")
-                        .WithMany("ClassSubjectTeachers")
-                        .HasForeignKey("ClassSubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("ClassService.Domain.Entities.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ClassSubject");
+                    b.HasOne("ClassService.Domain.Entities.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClassService.Domain.Entities.ClassTeacherAssignment", b =>
@@ -502,8 +411,7 @@ namespace ClassService.Infrastructure.Migrations
                 {
                     b.HasOne("ClassService.Domain.Entities.Class", "Class")
                         .WithMany("Enrollments")
-                        .HasForeignKey("ClassId", "SchoolYearId")
-                        .HasPrincipalKey("Id", "SchoolYearId")
+                        .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -523,10 +431,9 @@ namespace ClassService.Infrastructure.Migrations
 
             modelBuilder.Entity("ClassService.Domain.Entities.RoomSchedule", b =>
                 {
-                    b.HasOne("ClassService.Domain.Entities.ClassSubject", "ClassSubject")
+                    b.HasOne("ClassService.Domain.Entities.Class", "Class")
                         .WithMany("RoomSchedules")
-                        .HasForeignKey("ClassSubjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("ClassId");
 
                     b.HasOne("ClassService.Domain.Entities.Period", "Period")
                         .WithMany("RoomSchedules")
@@ -540,7 +447,11 @@ namespace ClassService.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ClassSubject");
+                    b.HasOne("ClassService.Domain.Entities.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId");
+
+                    b.Navigation("Class");
 
                     b.Navigation("Period");
 
@@ -549,14 +460,7 @@ namespace ClassService.Infrastructure.Migrations
 
             modelBuilder.Entity("ClassService.Domain.Entities.Class", b =>
                 {
-                    b.Navigation("ClassSubjects");
-
                     b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("ClassService.Domain.Entities.ClassSubject", b =>
-                {
-                    b.Navigation("ClassSubjectTeachers");
 
                     b.Navigation("RoomSchedules");
                 });

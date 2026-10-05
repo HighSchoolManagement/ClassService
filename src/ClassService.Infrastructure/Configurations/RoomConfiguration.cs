@@ -1,4 +1,4 @@
-﻿using ClassService.Domain.Entities;
+using ClassService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -26,7 +26,13 @@ namespace ClassService.Infrastructure.Configurations
           .HasColumnType("datetime2");
 
             builder.Property(c => c.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
+
+            // Ten phong duy nhat trong mot truong, chi tinh phong active.
+            builder.HasIndex(r => new { r.SchoolId, r.Name })
+                .IsUnique()
+                .HasFilter("[IsActive] = 1");
         }
     }
 }
