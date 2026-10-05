@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace ClassService.Domain.Entities
 {
     public class Class
     {
-        public int Id {get;set;}
+        public int Id { get; set; }
         public int SchoolId { get; set; }
-        public int SchoolYearId {get;set;}
+        public int SchoolYearId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int Capacity {get;set;}
-        public DateTime? CreatedDate {get;set;}
-        public DateTime? ModifiedDate {get;set;}
+        public int Capacity { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }   // cot DB: UpdatedDate (xem ClassConfiguration)
+        public byte[] RowVersion { get; set; } = null!;
         public SchoolYear SchoolYear { get; set; } = new SchoolYear();
         public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-        public ICollection<RoomSchedule> RoomSchedules { get; set; } = new List<RoomSchedule>();
-
+        public ICollection<ClassSubject> ClassSubjects { get; set; } = new List<ClassSubject>();
     }
 }

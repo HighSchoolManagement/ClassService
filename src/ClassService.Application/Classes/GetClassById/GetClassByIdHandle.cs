@@ -18,15 +18,10 @@ namespace ClassService.Application.Classes.GetClassById
         }
         public async Task<GetClassByIdResponse> Handle(GetClassByIdQuery request, CancellationToken cancellationToken = default)
         {
-            if(request.ClassId <= 0 || request.SchoolYearId <=0 )
-            {
-                throw new ArgumentException("ClassId or SchoolYearId must be greater than 0");
-            }
-            var existingClass = classRepository.GetByIdAsync(request.SchoolYearId, request.ClassId);
-            if (existingClass == null)
-            {
-                throw new ClassNotFoundException();
-            }
+            var existingClass = await ClassValidator.GetOrThrowAsync(
+                (() => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId)),
+                (() => new ClassNotFoundException()));
+           
             return mapper.Map<GetClassByIdResponse>(existingClass);
             
         }

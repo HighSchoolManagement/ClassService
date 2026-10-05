@@ -35,14 +35,15 @@ namespace ClassService.Infrastructure.Repositories
                     Id = s.Id,
                     Date = s.Date,
                     PeriodId = s.PeriodId,
-                    Type = s.Booking,
+                    Type = s.BookingType,
                     Title = s.Title,
-                    ClassId = s.ClassId,
-                    ClassName = s.Class != null ? s.Class.Name : null,       // Meeting/Reserved have no class
-                    StudentCount = s.Class == null
+                    Topic = s.Topic,
+                    ClassId = s.ClassSubject != null ? (int?)s.ClassSubject.ClassId : null,
+                    ClassName = s.ClassSubject != null ? s.ClassSubject.Class.Name : null,   // Meeting/Reserved have no class
+                    StudentCount = s.ClassSubject == null
                         ? (int?)null
                         // only enrollments valid ON THE DAY of the booking
-                        : s.Class.Enrollments.Count(e => e.StartDate <= s.Date && (e.EndDate == null || e.EndDate >= s.Date))
+                        : s.ClassSubject.Class.Enrollments.Count(e => e.StartDate <= s.Date && (e.EndDate == null || e.EndDate >= s.Date))
                 })
                 .ToListAsync(cancellationToken);
         }

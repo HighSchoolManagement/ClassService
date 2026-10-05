@@ -18,6 +18,7 @@ public class ClassDbContext: DbContext
     public DbSet<RoomSchedule>  RoomSchedules { get; set; }
     public DbSet<Period> Periods { get; set; }
     public DbSet<Subject> Subjects { get; set; }
+    public DbSet<ClassSubject> ClassSubjects { get; set; }
     public DbSet<ClassSubjectTeacher> ClassSubjectTeachers { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

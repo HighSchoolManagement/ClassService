@@ -24,13 +24,10 @@ namespace ClassService.Application.Classes.UpdateClass
         {
             if (request?.UpdateClassRequest == null)
                 throw new ArgumentException("Request is null");
-            if (request.ClassId <= 0|| request.SchoolYearId <= 0)
-            {
-                throw new ArgumentException("ClassId or SchoolYearId must be greater than 0");
-            }
-            var existingClass = await classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.ClassId);
-            if (existingClass == null)
-                throw new ClassNotFoundException();
+            
+            var classExisting = await ClassValidator.GetOrThrowAsync(
+                () => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId),
+                () => new ClassNotFoundException());
 
             var req = request.UpdateClassRequest;
             bool changed = false;
@@ -38,24 +35,25 @@ namespace ClassService.Application.Classes.UpdateClass
             if (req.Name != null)
             {
                 var name = req.Name.Trim();
-                existingClass.Name = name;
+                classExisting.Name = name;
                 changed = true;
             }
 
-            if (req.SchoolYearId != existingClass.SchoolYearId)
+            if (req.SchoolYearId != classExisting.SchoolYearId)
             {
-                var schoolYear = await schoolYearRepository.GetSchoolYearReadModelByIdAsync(req.SchoolYearId);
-                if (schoolYear == null)
-                    throw new SchoolYearNotFoundException();
-                existingClass.SchoolYearId = req.SchoolYearId;
+                var schoolYear = await ClassValidator.GetOrThrowAsync(
+                    (() => schoolYearRepository.GetSchoolYearReadModelByIdAsync(req.SchoolYearId)),
+                    (() => new SchoolYearNotFoundException()));
+                classExisting.SchoolYearId = schoolYear.Id;
                 changed = true;
             }
-            if (req.SchoolId != existingClass.SchoolId)
+            if (req.SchoolId != classExisting.SchoolId)
             {
-                var school = await schoolRepository.GetSchoolReadModelByIdAsync(req.SchoolId);
-                if (school == null)
-                    throw new SchoolNotFoundException();
-                existingClass.SchoolId = req.SchoolId;
+                var school = await ClassValidator.GetOrThrowAsync(
+                    (() => schoolRepository.GetSchoolReadModelByIdAsync(req.SchoolId)),
+                    (() => new SchoolNotFoundException()));
+                
+                classExisting.SchoolId = school.Id;
                 changed = true;
             }
             if (!changed)

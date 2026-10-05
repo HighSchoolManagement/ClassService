@@ -10,6 +10,7 @@ namespace ClassService.Application.Common.Mediator
     {
         public static readonly Unit Value = new Unit();
     }
+
     public class Mediator : IMediator
     {
         private readonly IServiceProvider _serviceProvider;
@@ -18,8 +19,19 @@ namespace ClassService.Application.Common.Mediator
         {
             _serviceProvider = serviceProvider;
         }
-        public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+
+        public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request,
+            CancellationToken cancellationToken = default)
         {
+            if (request is ISchoolScope schoolScope && (schoolScope.SchoolYearId <= 0|| schoolScope.SchoolId <= 0))
+            {
+                throw new ArgumentException("SchoolYearId or SchoolId must be greater than 0");
+            }
+            if (request is IClassScope classScope && classScope.ClassId <= 0)
+            {
+                throw new ArgumentException("ClassId must be greater than 0");
+            }
+
             var requestType = request.GetType();
             var handlerType = typeof(IRequestHandler<,>).MakeGenericType(requestType, typeof(TResponse));
             dynamic handler = _serviceProvider.GetRequiredService(handlerType);

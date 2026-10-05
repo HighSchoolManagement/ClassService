@@ -4,9 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ClassService.Infrastructure.Configurations
 {
-    // Mới thêm — ClassSubjectTeacher trước đây không có DbSet/Configuration nên EF không
-    // nhận diện được. TeacherId để trần (không FK) vì theo pattern School/Class hiện tại,
-    // Teacher nhiều khả năng là cross-service — cần xác nhận lại (mục 4, Subject-Topic-decision.md).
+    // TeacherId la tham chieu service ngoai nen khong co FK that.
     internal class ClassSubjectTeacherConfiguration : IEntityTypeConfiguration<ClassSubjectTeacher>
     {
         public void Configure(EntityTypeBuilder<ClassSubjectTeacher> builder)
@@ -17,19 +15,23 @@ namespace ClassService.Infrastructure.Configurations
             builder.Property(e => e.TeacherId)
                 .IsRequired();
 
-            builder.HasOne<Class>().WithMany().HasForeignKey(e => e.ClassId);
-            builder.HasOne<Subject>().WithMany().HasForeignKey(e => e.SubjectId);
+            builder.HasOne(e => e.ClassSubject)
+                .WithMany(cs => cs.ClassSubjectTeachers)
+                .HasForeignKey(e => e.ClassSubjectId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(e => e.CreatedDate)
                 .HasColumnType("datetime2");
 
             builder.Property(e => e.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
 
-            // CHƯA làm: cột IsActive (entity chưa có) + unique filtered index
-            // (ClassId, SubjectId) WHERE IsActive = 1 — đây là lý do bạn tách bảng này
-            // riêng ra ngay từ đầu (giữ lịch sử đổi giáo viên), nhưng thiếu IsActive thì
-            // mục đích đó chưa đạt được. Xem lại review trước.
+            // Tai mot thoi diem chi co mot giao vien dang day mot ClassSubject.
+            builder.HasIndex(e => e.ClassSubjectId)
+                .IsUnique()
+                .HasFilter("[IsActive] = 1");
         }
     }
 }

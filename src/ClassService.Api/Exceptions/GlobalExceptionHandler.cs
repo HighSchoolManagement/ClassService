@@ -1,4 +1,5 @@
-﻿using ClassService.Application.Rooms;
+﻿using ClassService.Application.Classes.GetClassById;
+using ClassService.Application.Rooms;
 using ClassService.Application.SchoolYears.GetSchoolYearById;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace SchoolService.Api.Exceptions
             var (statusCode, title) = exception switch
             {
                 //DuplicateSchoolCodeException => (StatusCodes.Status409Conflict, exception.Message),
-                //SchoolAlreadyInactiveException => (StatusCodes.Status409Conflict, exception.Message),
+                ClassNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
                 SchoolYearNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
                 RoomNotFoundException => (StatusCodes.Status404NotFound, exception.Message),
                 ArgumentOutOfRangeException => (StatusCodes.Status400BadRequest, exception.Message),

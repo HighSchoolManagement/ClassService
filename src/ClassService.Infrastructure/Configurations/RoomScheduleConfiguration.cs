@@ -1,9 +1,6 @@
 using ClassService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ClassService.Infrastructure.Configurations
 {
@@ -11,36 +8,46 @@ namespace ClassService.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<RoomSchedule> builder)
         {
-            builder.ToTable("RoomSchedule");
+            // Gia tri BookingType trong CHECK: Class = 1 (xem enum BookingType). Doi enum thi sua CHECK.
+            builder.ToTable("RoomSchedule", t =>
+            {
+                t.HasCheckConstraint("CK_RoomSchedule_Lesson_ClassSubject",
+                    "[BookingType] <> 1 OR [ClassSubjectId] IS NOT NULL");
+                t.HasCheckConstraint("CK_RoomSchedule_NonLesson_Title",
+                    "[BookingType] = 1 OR [Title] IS NOT NULL");
+                t.HasCheckConstraint("CK_RoomSchedule_NonLesson_NoTopic",
+                    "[BookingType] = 1 OR [Topic] IS NULL");
+            });
             builder.HasKey(e => e.Id);
-            builder.Property(x => x.Booking).HasConversion<string>().HasMaxLength(20);
+
+            builder.Property(x => x.BookingType)
+                .HasConversion<byte>()
+                .HasColumnType("tinyint")
+                .IsRequired();
             builder.Property(x => x.Title).HasMaxLength(200);
             builder.Property(x => x.Topic).HasMaxLength(200);
+
             builder.HasOne(x => x.Room).WithMany(r => r.RoomSchedules).HasForeignKey(x => x.RoomId);
             builder.HasOne(x => x.Period).WithMany(p => p.RoomSchedules).HasForeignKey(x => x.PeriodId);
-            builder.HasOne(x => x.Class).WithMany(c => c.RoomSchedules).HasForeignKey(x => x.ClassId);
-            // FK tới Subject — không có navigation property ở 2 phía, chỉ ràng buộc khoá ngoại.
-            // Lưu ý: SubjectId hiện vẫn là int bắt buộc (chưa đổi thành int?) — xem lại điểm
-            // "Meeting/Reserved booking không có Subject" đã nêu ở review trước, chưa xử lý ở đây.
-            builder.HasOne<Subject>().WithMany().HasForeignKey(x => x.SubjectId);
+            builder.HasOne(x => x.ClassSubject)
+                .WithMany(cs => cs.RoomSchedules)
+                .HasForeignKey(x => x.ClassSubjectId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Phòng không bị chiếm đôi (SQL Server: cột IsActive kiểu bit, so sánh bằng 1/0)
+            builder.Property(e => e.RowVersion).IsRowVersion();
+
+            // Phong khong bi chiem doi (o dong cua lop da xoa van IsActive = 1 nen van giu o).
             builder.HasIndex(x => new { x.RoomId, x.Date, x.PeriodId })
                 .IsUnique()
                 .HasFilter("[IsActive] = 1");
 
-            // Lớp không ở hai phòng cùng tiết
-            builder.HasIndex(x => new { x.ClassId, x.Date, x.PeriodId })
-                .IsUnique()
-                .HasFilter("[IsActive] = 1 AND [ClassId] IS NOT NULL");
-
-            builder.ToTable(t => t.HasCheckConstraint("CK_RoomSchedule_Class",
-                "([Booking] = 'Class' AND [ClassId] IS NOT NULL) OR ([Booking] <> 'Class' AND [ClassId] IS NULL)"));
+            // "Mot lop khong o hai phong cung tiet" khong index duoc (phai qua ClassSubject) -> kiem tra bang code.
 
             builder.Property(e => e.CreatedDate)
-           .HasColumnType("datetime2");
+                .HasColumnType("datetime2");
 
             builder.Property(e => e.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
         }
     }

@@ -32,16 +32,22 @@ namespace ClassService.Infrastructure.Configurations
                .IsRequired();
 
             builder.Property(s => s.StartDate)
-       .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(s => s.EndDate)
-                .HasColumnType("datetime2");
+                .HasColumnType("date");
 
             builder.Property(s => s.CreatedDate)
-           .HasColumnType("datetime2");
+                .HasColumnType("datetime2");
 
             builder.Property(s => s.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
+
+            // Mot lop chi co mot chu nhiem dang mo (EndDate NULL).
+            builder.HasIndex(c => c.ClassId)
+                .IsUnique()
+                .HasFilter("[IsHomeRoomTeacher] = 1 AND [EndDate] IS NULL");
         }
     }
 }

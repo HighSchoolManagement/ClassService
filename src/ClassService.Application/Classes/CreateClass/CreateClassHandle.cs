@@ -25,20 +25,13 @@ namespace ClassService.Application.Classes.CreateClass
         }
         public async Task<CreateClassResponse> Handle(CreateClassCommand request, CancellationToken cancellationToken = default)
         {
-            var existingSchoolYear =
-                await schoolYearRepository.GetSchoolYearReadModelByIdAsync(request.CreateClassRequest.SchoolYearId);
-            if (existingSchoolYear != null)
-            {
-                throw new SchoolYearNotFoundException();
-            }
+            await ClassValidator.GetOrThrowAsync(
+                (() => schoolYearRepository.GetSchoolYearReadModelByIdAsync(request.CreateClassRequest.SchoolYearId)),
+                (() => new SchoolYearNotFoundException()));
 
-            var existingSchool =
-                await schoolRepository.GetSchoolReadModelByIdAsync(request.CreateClassRequest.SchoolId);
-            if (existingSchool != null)
-            {
-                throw new SchoolNotFoundException();
-            }
-
+            await ClassValidator.GetOrThrowAsync(
+                (() => schoolRepository.GetSchoolReadModelByIdAsync(request.CreateClassRequest.SchoolId)),
+                (() => new SchoolNotFoundException()));
             var classCreateModel = _mapper.Map<ClassCreateModel>(request.CreateClassRequest);
 
             var createdClass = await classRepository.AddAsync(classCreateModel);

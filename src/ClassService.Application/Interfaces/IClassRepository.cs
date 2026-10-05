@@ -11,8 +11,8 @@ namespace ClassService.Application.Interfaces
         Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize);
         Task<int?> GetMaxClassIdAsync(int schoolYearId);
         Task<ClassReadModel> AddAsync(ClassCreateModel model);
-        Task<ClassReadModel?> GetByIdAsync(int schoolYearId, int classId);
-        Task<Class?> GetByIdTrackedAsync(int schoolYearId, int classId);
+        Task<ClassReadModel?> GetByIdAsync(int schoolYearId, int schoolId , int classId);
+        Task<Class?> GetByIdTrackedAsync(int schoolYearId, int schoolId, int classId);
         Task SaveChangesAsync();
     }
 }

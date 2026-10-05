@@ -4,10 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ClassService.Infrastructure.Configurations
 {
-    // Mới thêm — Subject trước đây không có DbSet/Configuration nên EF không nhận diện được.
-    // CHƯA cấu hình SchoolId vì entity Subject.cs hiện chưa có cột này (xem review trước:
-    // Subject-Topic-decision.md mục 1 đã chốt SchoolId bắt buộc, nhưng chưa được áp dụng
-    // vào entity). Thêm SchoolId + unique (SchoolId, Name) là việc còn lại, chưa làm ở đây.
     internal class SubjectConfiguration : IEntityTypeConfiguration<Subject>
     {
         public void Configure(EntityTypeBuilder<Subject> builder)
@@ -19,11 +15,25 @@ namespace ClassService.Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
+            builder.Property(e => e.Code)
+                .HasMaxLength(20);
+
+            // Cot moi them vao bang da co du lieu: mac dinh true de mon cu van active.
+            // ValueGeneratedNever de EF luon gui gia tri that (neu khong IsActive = false se bi thay bang true khi insert).
+            builder.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .ValueGeneratedNever();
+
             builder.Property(e => e.CreatedDate)
                 .HasColumnType("datetime2");
 
             builder.Property(e => e.ModifiedDate)
+                .HasColumnName("UpdatedDate")
                 .HasColumnType("datetime2");
+
+            builder.HasIndex(e => new { e.SchoolId, e.Name })
+                .IsUnique()
+                .HasFilter("[IsActive] = 1");
         }
     }
 }
