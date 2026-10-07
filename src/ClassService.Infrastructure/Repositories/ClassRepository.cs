@@ -63,17 +63,12 @@ namespace ClassService.Infrastructure.Repositories
                .FirstOrDefaultAsync();
         }
 
-        public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int? asOfId,int schoolYearId, int pageNumber, int pageSize)
+        public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int schoolYearId, int schoolId, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
             
             var query = _context.Classes.AsNoTracking().AsQueryable();
-            if (asOfId.HasValue)
-            {
-                query = query.Where(c =>  c.Id <= asOfId && c.SchoolYearId == schoolYearId).AsQueryable();
-            }else
-            {
-                query = query.Where(c => c.SchoolYearId == schoolYearId).AsQueryable();
-            }
+          
+                query = query.Where(c => c.SchoolYearId == schoolYearId && c.SchoolId == schoolId && c.IsActive).AsQueryable();
             var totalCount = await query.CountAsync();
 
             var classEntities = await query
@@ -81,7 +76,7 @@ namespace ClassService.Infrastructure.Repositories
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ProjectTo<ClassReadModel>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             return (classEntities, totalCount);
         }
 

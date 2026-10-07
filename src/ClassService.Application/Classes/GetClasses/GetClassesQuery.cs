@@ -8,11 +8,10 @@ namespace ClassService.Application.Classes.GetClasses
 {
     public class GetClassesQuery: IRequest<PageResult<GetClassesResponse>>, ISchoolScope
     {
-        public int? AsOfId { get; set; }
         public int SchoolYearId { get; set; }
         public int SchoolId { get; set; }
-        public int PageSize { get; set; } = 1;
-        public int PageNumber { get; set; } = 10;
+        public int PageSize { get; set; }
+        public int PageNumber { get; set; } 
 
     }
 }

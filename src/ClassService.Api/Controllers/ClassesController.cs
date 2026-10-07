@@ -22,9 +22,9 @@ namespace ClassService.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult>GetPage(int? asOf, int pageNumber, int pageSize, [FromRoute] int schoolYearId)
+        public async Task<IActionResult>GetPage(int pageNumber, int pageSize, [FromRoute] int schoolYearId)
         {
-            var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize, AsOfId = asOf, SchoolYearId = schoolYearId });
+            var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize, SchoolYearId = schoolYearId });
             return Ok(classReponse);
         }
 
