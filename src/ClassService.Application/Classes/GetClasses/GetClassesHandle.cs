@@ -12,6 +12,8 @@ namespace ClassService.Application.Classes.GetClasses
     {
         private readonly IClassRepository classRepository;
         private readonly IMapper _mapper;
+        private const int MaxPageSize = 20;
+        private const int MaxPageNumber = 500;
         public GetClassesHandle(IClassRepository classRepository, IMapper mapper)
         {
             this.classRepository = classRepository;
@@ -19,14 +21,25 @@ namespace ClassService.Application.Classes.GetClasses
         }
         async Task<PageResult<GetClassesResponse>> IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>.Handle(GetClassesQuery request, CancellationToken cancellationToken)
         {
-            if (request.PageNumber <= 0 || request.PageSize <= 0)
+            if (request.PageNumber < 0 || request.PageSize < 0)
             {
-                throw new ArgumentException("Page Number and Page Size must be greater than 0");
+                throw new ArgumentException("PageNumber or PageSize is negative number ");
             }
-            var asOfId = request.AsOfId ?? await classRepository.GetMaxClassIdAsync(request.SchoolYearId);
-           
+            if (request.PageNumber == 0 || request.PageSize == 0)
+            {
+                request.PageNumber = request.PageNumber > 0? request.PageNumber: 1;
+                request.PageSize = request.PageSize  > 0 ? request.PageSize : MaxPageSize;
+            }
 
-            var (items, totalCount) = await classRepository.GetListAsync(asOfId, request.SchoolYearId, request.PageNumber, request.PageSize);
+            if (request.PageNumber > MaxPageNumber)
+            {
+                throw new ArgumentException($"Page Number must be smaller or equal than {MaxPageNumber}");
+            }
+            if (request.PageSize > MaxPageSize)
+            {
+                throw new ArgumentException($"Page Size must be smaller or equal than {MaxPageSize}");
+            }
+            var (items, totalCount) = await classRepository.GetListAsync(request.SchoolYearId, request.SchoolId, request.PageNumber, request.PageSize, cancellationToken);
 
             return new PageResult<GetClassesResponse>
             {
@@ -34,7 +47,6 @@ namespace ClassService.Application.Classes.GetClasses
                 TotalCount = totalCount,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
-                AsOfId = asOfId
             };
         }
     }
