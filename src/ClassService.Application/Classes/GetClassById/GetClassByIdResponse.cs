@@ -12,5 +12,6 @@ namespace ClassService.Application.Classes.GetClassById
         public string Name { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public DateTime CreatedDate { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

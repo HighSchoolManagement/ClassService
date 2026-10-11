@@ -19,7 +19,7 @@ namespace ClassService.Application.Classes.GetClassById
         public async Task<GetClassByIdResponse> Handle(GetClassByIdQuery request, CancellationToken cancellationToken = default)
         {
             var existingClass = await ClassValidator.GetOrThrowAsync(
-                (() => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId)),
+                (() => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken)),
                 (() => new ClassNotFoundException()));
            
             return mapper.Map<GetClassByIdResponse>(existingClass);

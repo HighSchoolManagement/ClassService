@@ -1,4 +1,5 @@
-﻿using ClassService.Application.Classes.CreateClass;
+﻿using ClassService.Application.Classes;
+using ClassService.Application.Classes.CreateClass;
 using ClassService.Application.Classes.DeleteClass;
 using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
@@ -22,22 +23,23 @@ namespace ClassService.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult>GetPage(int pageNumber, int pageSize, [FromRoute] int schoolYearId)
+        public async Task<IActionResult>GetPage(int pageNumber, int pageSize, [FromRoute] int schoolYearId, [FromRoute] int schoolId)
         {
-            var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize, SchoolYearId = schoolYearId });
+            var classReponse = await _mediator.Send(new GetClassesQuery { PageNumber = pageNumber, PageSize = pageSize, SchoolYearId = schoolYearId, SchoolId = schoolId});
             return Ok(classReponse);
         }
 
 
         [HttpGet("{classId:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int schoolYearId, [FromRoute] int classId)
+        public async Task<IActionResult> GetById([FromRoute] int schoolYearId,[FromRoute] int schoolId, [FromRoute] int classId)
         {
             try
             {
                 var result = await _mediator.Send(new GetClassByIdQuery
                 {
                     SchoolYearId = schoolYearId,
-                    ClassId = classId
+                    ClassId = classId,
+                    SchoolId = schoolId
                 });
                 return Ok(result);
             }
@@ -52,12 +54,12 @@ namespace ClassService.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateClassRequest request)
+        public async Task<IActionResult> Create([FromRoute] int schoolYearId, [FromRoute] int schoolId, [FromBody] CreateClassRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var classResponse = await _mediator.Send(new CreateClassCommand { CreateClassRequest = request });
-                return CreatedAtAction(nameof(GetById), new { id = classResponse.ClassId }, classResponse);
+                var classResponse = await _mediator.Send(new CreateClassCommand { SchoolYearId = schoolYearId, SchoolId = schoolId, CreateClassRequest = request }, cancellationToken);
+                return CreatedAtAction(nameof(GetById), new { schoolYearId = classResponse.SchoolYearId, schoolId = classResponse.SchoolId, classId = classResponse.ClassId }, classResponse);
             }
             catch (ArgumentException ex)
             {
@@ -70,34 +72,53 @@ namespace ClassService.Api.Controllers
         }
 
         [HttpPatch("{classId:int}")]
-        public async Task<IActionResult> Update([FromRoute] int classId, [FromRoute] int schoolYearId, [FromBody] UpdateClassRequest request)
+        public async Task<IActionResult> Update([FromRoute] int classId, [FromRoute] int schoolYearId, [FromBody] UpdateClassRequest request, [FromRoute] int schoolId, [FromHeader(Name = "If-Match")] string? ifMatch)
         {
             try
             {
-                await _mediator.Send(new UpdateClassCommand { ClassId = classId,SchoolYearId = schoolYearId, UpdateClassRequest = request });
-                return NoContent();
+                byte[]? rowVersion = null;
+                if (!string.IsNullOrEmpty(ifMatch))
+                {
+                    rowVersion = Convert.FromBase64String(ifMatch);
+                }
+                var response = await _mediator.Send(new UpdateClassCommand { ClassId = classId,SchoolYearId = schoolYearId, SchoolId = schoolId, UpdateClassRequest = request, RowVersion = rowVersion });
+                return Ok(response);
             }
-            catch (SchoolNotFoundException ex)
+            catch (FormatException)
             {
-                return NotFound(new ProblemDetails { Status = StatusCodes.Status404NotFound, Title = ex.Message });
+                return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = "If-Match is not a valid RowVersion" });
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = ex.Message });
             }
+            catch (RowVersionConflitException ex)
+            {
+                return Conflict(new ProblemDetails { Status = StatusCodes.Status409Conflict
+                    , Title = ex.Message });
+            }
         }
 
         [HttpDelete("{classId:int}")]
         public async Task<IActionResult> Delete([FromRoute] int classId, [FromRoute] int schoolYearId,
-            [FromRoute] int schoolId)
+            [FromRoute] int schoolId, [FromHeader(Name = "If-Match")] string? ifMatch)
         {
             try
             {
+                byte[]? rowVersion = null;
+                if (!string.IsNullOrEmpty(ifMatch))
+                {
+                    rowVersion = Convert.FromBase64String(ifMatch);
+                }
                 await _mediator.Send(new DeleteClassCommand
                 {
-                    SchoolYearId = schoolYearId, SchoolId = schoolId, ClassId = classId
+                    SchoolYearId = schoolYearId, SchoolId = schoolId, ClassId = classId, RowVersion = rowVersion
                 });
                 return NoContent();
+            }
+            catch (FormatException ex)
+            {
+                return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest, Title = "If-Match is not a valid RowVersion" });
             }
             catch (ClassNotFoundException ex)
             {
@@ -106,6 +127,11 @@ namespace ClassService.Api.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new ProblemDetails { Status = StatusCodes.Status400BadRequest
+                    , Title = ex.Message });
+            }
+            catch (RowVersionConflitException ex)
+            {
+                return Conflict(new ProblemDetails { Status = StatusCodes.Status409Conflict
                     , Title = ex.Message });
             }
         }

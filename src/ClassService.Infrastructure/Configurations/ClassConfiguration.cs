@@ -1,3 +1,4 @@
+using ClassService.Application.Classes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ClassService.Domain.Entities;
@@ -11,11 +12,10 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
         builder.ToTable("Class");
         builder.HasKey(c => c.Id);
 
-        // Khoa phu (Id, SchoolYearId) la dich cua FK kep tu Enrollment.
         builder.HasAlternateKey(c => new { c.Id, c.SchoolYearId });
 
         builder.Property(c => c.Name)
-            .HasMaxLength(100)
+            .HasMaxLength(ClassValidator.MaxNameLength)
             .IsRequired();
 
         builder.Property(c => c.Capacity)
@@ -31,15 +31,13 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
             .HasColumnType("datetime2");
 
         builder.Property(c => c.ModifiedDate)
-            .HasColumnName("UpdatedDate")
+            .HasColumnName("ModifiedDate")
             .HasColumnType("datetime2");
 
         builder.Property(c => c.RowVersion)
             .IsRowVersion();
 
-        // Ten lop duy nhat trong pham vi mot nam hoc, chi tinh lop dang active
-        // (lop da xoa IsActive = 0 khong chiem ten).
-        builder.HasIndex(c => new { c.SchoolYearId, c.Name })
+        builder.HasIndex(c => new { c.SchoolYearId, c.SchoolId, c.Name })
             .IsUnique()
             .HasFilter("[IsActive] = 1");
     }

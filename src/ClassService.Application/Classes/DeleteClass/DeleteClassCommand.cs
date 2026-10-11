@@ -7,5 +7,6 @@ namespace ClassService.Application.Classes.DeleteClass
         public int SchoolId { get; set; }
         public int ClassId { get; set; }
         public int SchoolYearId { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }
