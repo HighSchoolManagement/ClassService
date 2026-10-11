@@ -2,6 +2,7 @@ using ClassService.Application.Classes.CreateClass;
 using ClassService.Application.Classes.DeleteClass;
 using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Classes.GetClasses;
+using ClassService.Application.Classes.UpdateClass;
 using ClassService.Application.ClassRoomSchedule.GetClassRoomSchedule;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IRequestHandler<GetRoomsQuery, PageResult<GetRoomsRes
 builder.Services.AddScoped<IRequestHandler<GetRoomScheduleQuery, GetRoomScheduleResponse>, GetRoomScheduleHandle>();
 builder.Services.AddScoped<IRequestHandler<GetClassByIdQuery, GetClassByIdResponse>, GetClassByIdHandle>();
 builder.Services.AddScoped<IRequestHandler<DeleteClassCommand, Unit>, DeleteClassHandle>();
+builder.Services.AddScoped<IRequestHandler<UpdateClassCommand, UpdateClassResponse>, UpdateClassHandle>();
 
 builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).

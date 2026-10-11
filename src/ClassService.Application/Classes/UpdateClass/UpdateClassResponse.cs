@@ -11,6 +11,7 @@ namespace ClassService.Application.Classes.UpdateClass
         public int SchoolYearId { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Capacity { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

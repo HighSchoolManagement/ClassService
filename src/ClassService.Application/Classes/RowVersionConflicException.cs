@@ -1,7 +1,10 @@
 namespace ClassService.Application.Classes
 {
-    public class RowVersionConflicException
+    public class RowVersionConflitException: Exception
     {
-        
+        public RowVersionConflitException(): base("Version is conflic")
+        {
+
+        }
     }
 }

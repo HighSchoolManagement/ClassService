@@ -13,5 +13,6 @@ namespace ClassService.Application.Models
         public int Capacity { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public byte[]? RowVersion { get; set; }
     }
 }

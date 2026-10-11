@@ -1,66 +1,64 @@
-﻿using ClassService.Application.Classes.GetClassById;
+﻿using AutoMapper;
+using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
-using ClassService.Application.Schools.GetSchoolById;
-using ClassService.Application.SchoolYears.GetSchoolYearById;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace ClassService.Application.Classes.UpdateClass
 {
-    public class UpdateClassHandle : IRequestHandler<UpdateClassCommand, Unit>
+    public class UpdateClassHandle : IRequestHandler<UpdateClassCommand, UpdateClassResponse>
     {
         private readonly IClassRepository classRepository;
-        private readonly ISchoolYearRepository schoolYearRepository;
-        private readonly ISchoolRepository schoolRepository;
-        public UpdateClassHandle(IClassRepository classRepository, ISchoolYearRepository schoolYearRepository, ISchoolRepository schoolRepository)
+        private readonly IMapper _mapper;
+        public UpdateClassHandle(IClassRepository classRepository, IMapper mapper)
         {
             this.classRepository = classRepository;
-            this.schoolYearRepository = schoolYearRepository;
-            this.schoolRepository = schoolRepository;
+            _mapper = mapper;
         }
-        public async Task<Unit> Handle(UpdateClassCommand request, CancellationToken cancellationToken = default)
+        public async Task<UpdateClassResponse> Handle(UpdateClassCommand request, CancellationToken cancellationToken = default)
         {
             if (request?.UpdateClassRequest == null)
                 throw new ArgumentException("Request is null");
+            if (request.RowVersion == null)
+            {
+                throw new ArgumentException("RowVersion is null");
+            }
+            var req = request.UpdateClassRequest;
+            var name = ClassValidator.NormalizeAndValidateName(req.Name);
+            if (req.Capacity <= 0)
+            {
+                throw new ArgumentException("Capacity must be greater than 0"); 
+            }
             
             var classExisting = await ClassValidator.GetOrThrowAsync(
-                () => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId),
+                () => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken),
                 () => new ClassNotFoundException());
 
-            var req = request.UpdateClassRequest;
-            bool changed = false;
-
-            if (req.Name != null)
+            if (!request.RowVersion.SequenceEqual(classExisting.RowVersion))
             {
-                var name = req.Name.Trim();
-                classExisting.Name = name;
-                changed = true;
+                throw new RowVersionConflitException();
             }
 
-            if (req.SchoolYearId != classExisting.SchoolYearId)
-            {
-                var schoolYear = await ClassValidator.GetOrThrowAsync(
-                    (() => schoolYearRepository.GetSchoolYearReadModelByIdAsync(req.SchoolYearId)),
-                    (() => new SchoolYearNotFoundException()));
-                classExisting.SchoolYearId = schoolYear.Id;
-                changed = true;
-            }
-            if (req.SchoolId != classExisting.SchoolId)
-            {
-                var school = await ClassValidator.GetOrThrowAsync(
-                    (() => schoolRepository.GetSchoolReadModelByIdAsync(req.SchoolId)),
-                    (() => new SchoolNotFoundException()));
-                
-                classExisting.SchoolId = school.Id;
-                changed = true;
-            }
-            if (!changed)
-                throw new ArgumentException("At least one field must be provided.");
+          
+            if (name == classExisting.Name && req.Capacity == classExisting.Capacity)
+                throw new ArgumentException("Nothing to update");
+      
 
-            await classRepository.SaveChangesAsync();
-            return Unit.Value;
+            classExisting.Name = name;
+            classExisting.Capacity = req.Capacity;
+            classExisting.ModifiedDate = DateTime.UtcNow;  
+
+            await classRepository.SaveChangesAsync(cancellationToken);
+            return new UpdateClassResponse()
+            {
+                ClassId = classExisting.Id,
+                Capacity = classExisting.Capacity,
+                ModifiedDate = classExisting.ModifiedDate,
+                Name = classExisting.Name,
+                RowVersion = classExisting.RowVersion,
+                SchoolYearId = classExisting.SchoolYearId,
+                SchoolId = classExisting.SchoolId
+            };
         }
     }
 }

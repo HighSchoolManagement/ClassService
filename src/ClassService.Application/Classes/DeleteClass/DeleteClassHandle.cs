@@ -1,6 +1,8 @@
 using ClassService.Application.Classes.GetClassById;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
+using System.Linq;
+
 
 namespace ClassService.Application.Classes.DeleteClass
 {
@@ -14,12 +16,20 @@ namespace ClassService.Application.Classes.DeleteClass
         }
         public async Task<Unit> Handle(DeleteClassCommand request, CancellationToken cancellationToken = default)
         {
+            if (request.RowVersion == null)
+            {
+                throw new ArgumentException("RowVersion is not valid");
+            }
             var classExisting = await ClassValidator.GetOrThrowAsync(
-                () => _classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId),
+                () => _classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken),
                 () => new ClassNotFoundException());
-
+            if (!request.RowVersion.SequenceEqual(classExisting.RowVersion))
+            {
+                throw new RowVersionConflitException();
+            }
+            
             classExisting.IsActive = false;
-            await _classRepository.SaveChangesAsync();
+            await _classRepository.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }
