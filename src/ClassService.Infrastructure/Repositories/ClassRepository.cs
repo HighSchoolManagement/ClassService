@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ClassService.Application;
+using ClassService.Application.Classes;
 using ClassService.Application.Classes.CreateClass;
 using ClassService.Application.Interfaces;
 using ClassService.Application.Models;
@@ -24,25 +25,11 @@ namespace ClassService.Infrastructure.Repositories
             _mapper = mapper;
             _context = context;
         }
-        public async Task<ClassReadModel> AddAsync(ClassCreateModel model)
+        public async Task<ClassReadModel> AddAsync(ClassCreateModel model, CancellationToken cancellationToken = default)
         {
             var classEntity = _mapper.Map<Class>(model);
             _context.Add(classEntity);
-            try{
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateException ex)
-            {
-                if (ex.InnerException is SqlException sqlException)
-                {
-                    if (sqlException.Number == SqlServerErrorCodes.UniqueIndexViolation ||
-                        sqlException.Number == SqlServerErrorCodes.UniqueConstraintViolation)
-                    {
-                        throw new DuplicateClassNameException();
-                    }
-                }
-                throw;
-            }
+            await SaveChangesAsync(cancellationToken);
             return _mapper.Map<ClassReadModel>(classEntity);
         }
 
@@ -56,20 +43,17 @@ namespace ClassService.Infrastructure.Repositories
             return classEntity;
         }
 
-        public async Task<Class?> GetByIdTrackedAsync(int schoolYearId,int schoolId, int classId)
+        public async Task<Class?> GetByIdTrackedAsync(int schoolYearId,int schoolId, int classId, CancellationToken cancellationToken)
         {
             return await _context.Classes
                .Where(c => c.SchoolYearId == schoolYearId && c.SchoolId == schoolId && c.Id == classId && c.IsActive)
-               .FirstOrDefaultAsync();
+               .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<(List<ClassReadModel> Items, int TotalCount)> GetListAsync(int schoolYearId, int schoolId, int pageNumber, int pageSize, CancellationToken cancellationToken)
         {
-            
-            var query = _context.Classes.AsNoTracking().AsQueryable();
-          
-                query = query.Where(c => c.SchoolYearId == schoolYearId && c.SchoolId == schoolId && c.IsActive).AsQueryable();
-            var totalCount = await query.CountAsync();
+            var  query = _context.Classes.AsNoTracking().Where(c => c.SchoolYearId == schoolYearId && c.SchoolId == schoolId && c.IsActive).AsQueryable();
+            var totalCount = await query.CountAsync(cancellationToken);
 
             var classEntities = await query
                 .OrderByDescending(c => c.CreatedDate).ThenByDescending(c => c.Id)
@@ -80,14 +64,23 @@ namespace ClassService.Infrastructure.Repositories
             return (classEntities, totalCount);
         }
 
-        public async Task<int?> GetMaxClassIdAsync(int schoolYearId)
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-            return await _context.Classes.Where(c => c.SchoolYearId == schoolYearId).Select(c => (int?)c.Id).MaxAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new RowVersionConflitException();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException s &&
+                                               (s.Number == SqlServerErrorCodes.UniqueIndexViolation ||
+                                                s.Number == SqlServerErrorCodes.UniqueConstraintViolation))
+            {
+                throw new DuplicateClassNameException();
+            }
+           
         }
     }
 }

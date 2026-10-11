@@ -25,33 +25,33 @@ namespace ClassService.Infrastructure.Repositories
             _context = context;
             _mapper = mapper;
         }
-        public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByIdAsync(int id)
+        public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByIdAsync(int id, CancellationToken cancellationToken = default)
         {
 
             var schoolYear =await _context.SchoolYears.AsNoTracking().Where(sy => sy.Id == id && sy.IsActive)
                 .ProjectTo<SchoolYearReadModel>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             return schoolYear;
         }
 
-        public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByNameAsync(string name)
+        public async Task<SchoolYearReadModel?> GetSchoolYearReadModelByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             var schoolYearName = name.Trim();
             var schoolYear = await _context.SchoolYears.AsNoTracking().Where(sy => sy.Name == schoolYearName && sy.IsActive)
                .ProjectTo<SchoolYearReadModel>(_mapper.ConfigurationProvider)
-               .FirstOrDefaultAsync();
+               .FirstOrDefaultAsync(cancellationToken);
 
             return schoolYear;
         }
 
-        public async Task<SchoolYearReadModel> AddAsync(SchoolYearCreateModel model)
+        public async Task<SchoolYearReadModel> AddAsync(SchoolYearCreateModel model, CancellationToken cancellationToken = default)
         {
             var shoolYearEntity = _mapper.Map<SchoolYear>(model);
             _context.Add(shoolYearEntity);
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateException ex)
             {
