@@ -12,6 +12,6 @@ namespace ClassService.Application.Classes.GetClasses
         public int SchoolId { get; set; }
         public int PageSize { get; set; }
         public int PageNumber { get; set; } 
-
+        public string? ClassName { get; set; }
     }
 }

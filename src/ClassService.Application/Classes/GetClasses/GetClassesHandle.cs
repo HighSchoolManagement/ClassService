@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using ClassService.Application.Classes.Specifications;
 using ClassService.Application.Common.Mediator;
+using ClassService.Application.Common.Specification;
 using ClassService.Application.Interfaces;
 using ClassService.Application.Models;
+using ClassService.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,7 +22,8 @@ namespace ClassService.Application.Classes.GetClasses
             this.classRepository = classRepository;
             _mapper = mapper;
         }
-        async Task<PageResult<GetClassesResponse>> IRequestHandler<GetClassesQuery, PageResult<GetClassesResponse>>.Handle(GetClassesQuery request, CancellationToken cancellationToken)
+
+        public async Task<PageResult<GetClassesResponse>> Handle(GetClassesQuery request, CancellationToken cancellationToken)
         {
             if (request.PageNumber < 0 || request.PageSize < 0)
             {
@@ -39,7 +43,16 @@ namespace ClassService.Application.Classes.GetClasses
             {
                 throw new ArgumentException($"Page Size must be smaller or equal than {MaxPageSize}");
             }
-            var (items, totalCount) = await classRepository.GetListAsync(request.SchoolYearId, request.SchoolId, request.PageNumber, request.PageSize, cancellationToken);
+
+            var specs = new List<ISpecification<Class>>
+            {
+                new ClassActiveBySchoolYearIdAndSchoolIdSpec(request.SchoolYearId, request.SchoolId)
+            };
+            if (!string.IsNullOrWhiteSpace(request.ClassName))
+            {
+                specs.Add(new ClassNameContainsSpec(request.ClassName));
+            }
+            var (items, totalCount) = await classRepository.GetListAsync(specs, request.PageNumber, request.PageSize, cancellationToken);
 
             return new PageResult<GetClassesResponse>
             {

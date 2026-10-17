@@ -1,4 +1,5 @@
 using ClassService.Application.Classes.GetClassById;
+using ClassService.Application.Classes.Specifications;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
 using System.Linq;
@@ -20,8 +21,11 @@ namespace ClassService.Application.Classes.DeleteClass
             {
                 throw new ArgumentException("RowVersion is not valid");
             }
+
+            var spec = new ClassActiveBySchoolYearIdAndSchoolIdAndClassIdSpec(request.SchoolYearId, request.SchoolId,
+                request.ClassId);
             var classExisting = await ClassValidator.GetOrThrowAsync(
-                () => _classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken),
+                () => _classRepository.GetByIdTrackedAsync(spec, cancellationToken),
                 () => new ClassNotFoundException());
             if (!request.RowVersion.SequenceEqual(classExisting.RowVersion))
             {

@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
+using ClassService.Application.Classes.Specifications;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace ClassService.Application.Classes.GetClassById
 {
@@ -18,8 +17,10 @@ namespace ClassService.Application.Classes.GetClassById
         }
         public async Task<GetClassByIdResponse> Handle(GetClassByIdQuery request, CancellationToken cancellationToken = default)
         {
+            var spec = new ClassActiveBySchoolYearIdAndSchoolIdAndClassIdSpec(request.SchoolYearId, request.SchoolId,
+                request.ClassId);
             var existingClass = await ClassValidator.GetOrThrowAsync(
-                (() => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken)),
+                (() => classRepository.GetByIdAsync(spec, cancellationToken)),
                 (() => new ClassNotFoundException()));
            
             return mapper.Map<GetClassByIdResponse>(existingClass);
