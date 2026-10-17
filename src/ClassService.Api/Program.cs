@@ -18,8 +18,10 @@ using SchoolService.Api.Exceptions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddProblemDetails();   // UseExceptionHandler() can no AddProblemDetails (hoac ExceptionHandlingPath)
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+builder.Services.AddScoped<IMediator, Mediator>();
 
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ISchoolYearRepository, SchoolYearRepository>();
@@ -35,7 +37,6 @@ builder.Services.AddScoped<IRequestHandler<GetRoomScheduleQuery, GetRoomSchedule
 builder.Services.AddScoped<IRequestHandler<GetClassByIdQuery, GetClassByIdResponse>, GetClassByIdHandle>();
 builder.Services.AddScoped<IRequestHandler<DeleteClassCommand, Unit>, DeleteClassHandle>();
 builder.Services.AddScoped<IRequestHandler<UpdateClassCommand, UpdateClassResponse>, UpdateClassHandle>();
-
 builder.Services.AddSchoolServiceClient(builder.Configuration);
 // AutoMapper: quét assembly chứa các Profile (SchoolYearMappingProfile, ClassMappingProfile...).
 builder.Services.AddAutoMapper(cfg => { },

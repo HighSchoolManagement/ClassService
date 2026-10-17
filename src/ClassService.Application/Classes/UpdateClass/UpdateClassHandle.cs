@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ClassService.Application.Classes.GetClassById;
+using ClassService.Application.Classes.Specifications;
 using ClassService.Application.Common.Mediator;
 using ClassService.Application.Interfaces;
 
@@ -29,9 +30,10 @@ namespace ClassService.Application.Classes.UpdateClass
             {
                 throw new ArgumentException("Capacity must be greater than 0"); 
             }
-            
+            var spec = new ClassActiveBySchoolYearIdAndSchoolIdAndClassIdSpec(request.SchoolYearId, request.SchoolId,
+                request.ClassId);
             var classExisting = await ClassValidator.GetOrThrowAsync(
-                () => classRepository.GetByIdTrackedAsync(request.SchoolYearId, request.SchoolId, request.ClassId, cancellationToken),
+                () => classRepository.GetByIdTrackedAsync(spec, cancellationToken),
                 () => new ClassNotFoundException());
 
             if (!request.RowVersion.SequenceEqual(classExisting.RowVersion))
